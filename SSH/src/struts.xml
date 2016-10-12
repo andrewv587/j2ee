@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+	<!-- 禁止动态方法调用DMI -->
+    <constant name="struts.enable.DynamicMethodInvocation" value="false" />
+    <!--设置开发模式，更改内容时会自动加载  -->
+    <constant name="struts.devMode" value="true" />
+	
+	<!-- package用来区分重名及继承包 -->
+	<!-- namespace默认为""，表示接受所有参数 -->
+    <package name="default" namespace="/" extends="struts-default">
+	
+        <action name="*">
+            <result > /HelloWorld.jsp </result>
+        </action>
+        
+
+    </package>
+
+   <!--  <include file="example.xml"/> -->
+
+    <!-- Add packages here -->
+
+</struts>

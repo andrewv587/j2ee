@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	    <context:annotation-config/>
+		<aop:aspectj-autoproxy/>
+	
+    <context:component-scan base-package="com.hwh">
+<!--         <context:include-filter type="regex"
+                expression=".*Stub.*Repository"/>
+        <context:exclude-filter type="annotation"
+                expression="org.springframework.stereotype.Repository"/>-->
+    </context:component-scan> 
+    
+    
+    <context:property-placeholder location="jdbc.properties"/>
+	<bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+    
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</prop>
+               <!--  <prop key="hibernate.current_session_context_class">thread</prop> --><!-- 事务中不能加入thread -->
+                <prop key="hibernate.show_sql">true</prop>
+                <prop key="hibernate.format_sql">true</prop>
+               <!--  <prop key="hibernate.hbm2ddl.auto">update</prop> -->
+            </props>
+        </property>
+        <property name="packagesToScan" value="com.hwh.model"/>
+    </bean>
+    
+    <bean id="hibernateTemplate" class="org.springframework.orm.hibernate4.HibernateTemplate">
+    	<property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+<!--    <tx:annotation-driven transaction-manager="transactionManager" /> -->
+
+<!-- 	<bean name="userDAO1" class="com.hwh.dao.impl.UserDAOimpl">
+		<property name="id" value="1"></property>
+    </bean> -->
+	<!-- autowire可写在任意方法上(不推荐写在属性上),@Qualifier("userDAO1")指明bean, -->
+	<!-- @Require 必须在初始化时就注入,默认按名称 -->
+	<!-- @PostConstruct 相当于init-method-->
+	<!-- @PreDestroy 相当于destroy-method-->
+	<!-- @Resource默认按名字, -->
+<!-- 	<bean id="userService" class="com.hwh.service.UserService" >
+    </bean> -->
+ <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="save*"/>
+        </tx:attributes>
+    </tx:advice>
+    <aop:config>
+        <aop:pointcut id="pointcut" expression="execution(* com.hwh.service.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pointcut"/>
+    </aop:config>
+
+</beans>
