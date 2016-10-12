@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- services -->
+	<!-- 用name代替id也包含特殊字符,不常用 -->
+    <bean name="userDAO" class="com.hwh.dao.impl.UserDAOimpl">
+    </bean>
+	
+	<bean name="userDAO1" class="com.hwh.dao.impl.UserDAOimpl">
+		<property name="id" value="1"></property>
+    </bean>
+	
+    
+	<!-- Scope默认为singleton,也可设为scope="prototype" ;autowire自动装配,可用byname和bytype,不常用;lazy-init="false"
+	表示使用时才加载,不常用;init-method="init" destroy-method="destory" 为prototype时,不会调用destroy方法,不常用-->
+	<bean id="userService" class="com.hwh.service.UserService" >
+		<!-- 通过set方法传属性 -->
+		 <property name="userDAO" ref="userDAO"/>
+		 <!-- 通过constructor传属性 ,将类型不存在继承时可指定名字即可,也可用index -->
+		 <!-- <constructor-arg ref="userDAO" type=""/> -->
+		 <!--  <constructor-arg index="0" ref="userDAO"/> -->
+		  <!-- setter injection using the nested ref element -->
+		  <!-- 也可用子标签 -->
+	    <!-- <property name="userDAO">
+	        <ref bean="userDAO"/>
+	    </property> -->
+    </bean>
+    
+	<aop:aspectj-autoproxy/>
+	<aop:config>
+		<!-- pointcut加入到aspect里面,只能该切面有效 -->
+		<aop:pointcut expression="execution(* com.hwh.dao..*.*(..))" id="pt1"/>
+   		 <aop:aspect id="logInterceptor" ref="logInterceptor">
+         	<aop:before method="before"  pointcut-ref="pt1"/>
+   		 </aop:aspect>
+   		
+	</aop:config>
+	
+	<bean id="logInterceptor" class="com.hwh.util.LogInterceptor"> </bean>
+	
+	
+
+
+    <!-- 集合注入,可用合并集合,不常用 -->
+    <!-- <bean id="moreComplexObject" class="example.ComplexObject">
+    results in a setAdminEmails(java.util.Properties) call
+    <property name="adminEmails">
+        <props>
+            <prop key="administrator">administrator@example.org</prop>
+            <prop key="support">support@example.org</prop>
+            <prop key="development">development@example.org</prop>
+        </props>
+    </property>
+    results in a setSomeList(java.util.List) call
+    <property name="someList">
+        <list>
+            <value>a list element followed by a reference</value>
+            <ref bean="myDataSource" />
+        </list>
+    </property>
+    results in a setSomeMap(java.util.Map) call
+    <property name="someMap">
+        <map>
+            <entry key="an entry" value="just some string"/>
+            <entry key ="a ref" value-ref="myDataSource"/>
+        </map>
+    </property>
+    results in a setSomeSet(java.util.Set) call
+    <property name="someSet">
+        <set>
+            <value>just some string</value>
+            <ref bean="myDataSource" />
+        </set>
+    </property> 
+	</bean>-->
+
+</beans>

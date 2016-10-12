@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd">
+	<bean name="userDAO" class="com.hwh.dao.impl.UserDAOimpl">
+    </bean>
+	    <context:annotation-config/>
+		<aop:aspectj-autoproxy/>
+	
+    <context:component-scan base-package="com.hwh">
+<!--         <context:include-filter type="regex"
+                expression=".*Stub.*Repository"/>
+        <context:exclude-filter type="annotation"
+                expression="org.springframework.stereotype.Repository"/>-->
+    </context:component-scan> 
+
+		
+<!-- 	<bean name="userDAO1" class="com.hwh.dao.impl.UserDAOimpl">
+		<property name="id" value="1"></property>
+    </bean> -->
+	<!-- autowire可写在任意方法上(不推荐写在属性上),@Qualifier("userDAO1")指明bean, -->
+	<!-- @Require 必须在初始化时就注入,默认按名称 -->
+	<!-- @PostConstruct 相当于init-method-->
+	<!-- @PreDestroy 相当于destroy-method-->
+	<!-- @Resource默认按名字, -->
+	<bean id="userService" class="com.hwh.service.UserService" >
+    </bean>
+
+    
+
+</beans>
