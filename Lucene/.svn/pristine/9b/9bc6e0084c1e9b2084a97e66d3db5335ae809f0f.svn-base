@@ -1,0 +1,34 @@
+package com.hwh.test;
+
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
+import org.junit.Test;
+
+import com.hwh.model.Article;
+
+public class HelloWorldTest {
+	
+	@Test
+	public void createIndex(){
+		//create context
+		Article article = new Article();
+		article.setId(1);
+		article.setName("检索 ");
+		article.setContext("这里我们采用了全文检索，检索内容无所谓，能用就行");
+		
+		//context --> document
+		 Document doc = new Document();
+		 doc.add(new StringField("id", String.valueOf(article.getId()),  Field.Store.YES));
+		 doc.add(new StringField("name", article.getName(), Field.Store.YES));
+		 doc.add(new StringField("name", article.getContext(), Field.Store.YES));
+		 
+		 
+		
+	}
+	
+	@Test
+	public void search(){
+		
+	}
+}

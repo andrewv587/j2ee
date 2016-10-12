@@ -1,0 +1,101 @@
+package com.hwh.test;
+
+import java.nio.file.Paths;
+
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.junit.Test;
+
+import com.hwh.model.Article;
+
+/**
+ * 对Lucene进行测试
+ * 
+ * @author andrew
+ * 
+ */
+
+public class HelloWorldTest {
+
+	private static Analyzer analyzer = new StandardAnalyzer();
+
+	@Test
+	public void createIndex() throws Exception {
+		
+		// indexWrite add document
+		Directory dir = FSDirectory.open(Paths.get("./index"));
+		// Directory dir = new RAMDirectory(); 可保存在内存中
+		IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
+		IndexWriter iw = new IndexWriter(dir, iwc);
+		
+		for (int i = 1; i < 20; i++) {
+			// create context
+			Article article = new Article();
+			article.setId(i);
+			article.setName("检索 ");
+			article.setContext("这里我们采用了全文检索，检索内容无所谓，能用就行");
+
+			// context --> document
+			//对于需要分词的内容我们使用TextField，对于像id这样不需要分词的内容我们使用StringField
+			Document doc = new Document();
+			doc.add(new StringField("id", String.valueOf(article.getId()),
+					Field.Store.YES));
+			doc.add(new StringField("name", article.getName(), Field.Store.YES));
+			doc.add(new TextField("context", article.getContext(),
+					Field.Store.YES));
+
+			iw.addDocument(doc);
+			iw.commit();
+
+		}
+
+		iw.close();
+
+	}
+
+	@Test
+	public void search() throws Exception {
+		// query
+		String querystr = "检索";
+		Query query = new QueryParser("context", analyzer).parse(querystr);
+
+		// searcher
+		Directory dir = FSDirectory.open(Paths.get("./index"));
+		IndexReader reader = DirectoryReader.open(dir);
+		IndexSearcher searcher = new IndexSearcher(reader);
+
+		// index
+		int maxDoc=2;
+		TopDocs topDoc = searcher.search(query, maxDoc); // 2表示查询的最大数
+		ScoreDoc[] docs = topDoc.scoreDocs;
+		int topDocLength= (maxDoc>topDoc.totalHits)? topDoc.totalHits:maxDoc;
+		// get document --> article
+		System.out.println("Found " + topDocLength + " hits.");
+		for (int i = 0; i < topDocLength; ++i) {
+			int docId = docs[i].doc;
+			Document doc = searcher.doc(docId);
+			Article article = new Article();
+			article.setId(Integer.parseInt(doc.get("id")));
+			article.setName(doc.get("name"));
+			article.setContext(doc.get("context"));
+			// 打印内容和编号
+			System.out.println(article + "scores: " + docs[i].score);
+		}
+
+	}
+}
