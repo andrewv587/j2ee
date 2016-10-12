@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+	<!-- 禁止动态方法调用DMI -->
+    <constant name="struts.enable.DynamicMethodInvocation" value="false" />
+    <!--设置开发模式，更改内容时会自动加载  -->
+    <constant name="struts.devMode" value="true" />
+    <!-- 允许静态调用（通常设为false） -->
+     <constant name="struts.ognl.allowStaticMethodAccess" value="true"></constant>
+	
+	<!-- package用来区分重名及继承包 -->
+	<!-- namespace默认为""，表示接受所有参数 -->
+    <package name="default" namespace="/" extends="struts-default">
+    
+		<!-- 设置默认action -->
+        <default-action-ref name="login_index" />
+		
+		<!-- 设置默认error的处理 -->
+        <global-results>
+            <result name="error">/WEB-INF/error.jsp</result>
+        </global-results> 
+		
+		 <!-- 申明异常处理页面，要写在global-results前面，先从自己包中error找 -->
+        <global-exception-mappings>
+            <exception-mapping exception="java.lang.Exception" result="error"/>
+        </global-exception-mappings>
+		
+		<!-- Hello.action中action可以省略 ，默认使用ActionSupport类，默认调用excute()方法,result默认为success-->
+        <action name="Hello">
+        <!-- 申明异常处理页面，异常处理是使用拦截器实现的-->
+            <result > /HelloWorld.jsp </result>
+<!--              <exception-mappings>
+            <exception-mapping exception="java.lang.Exception" result="success"/>
+        </exception-mappings> -->
+        </action>
+        
+        <!-- 通过实现Action接口的方法 -->
+        <action name="action01" class="www.hwh.struts.Action01">
+        	<result>/WEB-INF/Action01.jsp</result>
+        </action>
+        
+        <!-- 通过继承ActionSupport的方式（企业开发只使用该方式）,可指定method方法 -->
+        <!-- DMI中不需要指定method，需要在结尾加上!add,不推荐使用 -->
+        <action name="action02" class="www.hwh.struts.Action02" method="add">
+        	<result>/WEB-INF/Action02.jsp</result>
+        </action>
+        
+        <!-- 利用通配符 ,当有多个匹配项时，用最精确的匹配项，*为同一等级-->
+        <action name="action*_*" class="www.hwh.struts.Action{1}" method="{2}">
+        	<result>/WEB-INF/Action{1}.jsp</result>
+        </action>
+        
+        <!-- 类里面接收参数-->
+        <action name="action04" class="www.hwh.struts.Action04">
+        	<result>/WEB-INF/Action02.jsp</result>
+        </action>
+        
+        <!-- 类里面接收实体类参数,可用DTO将实体类保存或者DomainModel来接收(不常用)-->
+        <action name="action05" class="www.hwh.struts.Action05">
+        	<result>/WEB-INF/Action02.jsp</result>
+        </action>
+        
+        <!-- 获取request,session,application对象的常用方法（用getContext()不常用） -->
+        <action name="action06" class="www.hwh.struts.Action06">
+        	<result>/WEB-INF/Action06.jsp</result>
+        </action>
+        
+        <action name="action07" class="www.hwh.struts.Action07">
+        	<!--  动态结果集-->
+        	<!-- <result> /${name}</result> -->
+        	<!-- 服务器跳转至jsp,为默认值 -->
+        	<result type="dispatcher">/WEB-INF/Action07.jsp</result>
+        	<!-- 浏览器跳转至jsp -->
+        	<!-- <result type="redirect">/HelloWorld.jsp</result> -->
+        	<!-- 服务器跳转至Action02 -->
+        	<!-- <result type="chain">action02</result> -->
+        	<!-- 服务器跳转至其他包的Action02 -->
+        	<!-- <result type="chain">
+        		<param name="actionName">Action02</param>
+        		<param name="namespace">namespace</param>
+        	</result> -->
+        	<!-- 浏览器跳转至Action02 -->
+        	<!-- <result type="redirectAction">Action02</result> -->
+        	<!-- <result type="freemaker">Action02</result>
+        	<result type="velocity">/HelloWorld.jsp</result> -->
+        </action>
+        
+        
+    </package>
+    <!-- 包含文件 -->
+    <include file="ognl.xml"/> 
+	<include file="tags.xml"/> 
+    <!-- Add packages here -->
+
+</struts>
